@@ -75,5 +75,5 @@ def dijkstra(graph, start):
                     shortestEdge = edge
                 
 # MAIN
-graph = create_graph(sys.argv[1])
-dijkstra(graph, sys.argv[2])
+# Run dikstra algorithim on source csv and user specified start node
+dijkstra(create_graph(sys.argv[1]), sys.argv[2])

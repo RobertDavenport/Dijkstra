@@ -1,3 +1,4 @@
+import csv
 import sys
 
 
@@ -28,9 +29,7 @@ class Node(object):
 # Returns a dictionary holding every node in the graph.
 # The dictionary is addressable by the name (letter)
 # representing a node.
-def create_graph():
-    file = sys.argv[1]
-
+def create_graph(file):
     graph = {}  # Stores the input data in a graph of nodes
     index = []  # This node at each index in the input adjacency matrix's header
     with open(file) as topology:
@@ -63,5 +62,18 @@ def create_graph():
                     curr_node.add_link(graph[index[i]], int(line[i]))
             else:
                 return graph
-            
 
+
+# does not wok yet, need to review with Alex.
+def dijkstra(graph, start):
+    shortestEdge = 9999
+    for key, value in graph.items():
+        if (key == start):
+            # get edges
+            for edge in value.get_links:
+                if (edge < shortestEdge):
+                    shortestEdge = edge
+                
+# MAIN
+graph = create_graph(sys.argv[1])
+dijkstra(graph, sys.argv[2])

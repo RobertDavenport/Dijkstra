@@ -106,6 +106,36 @@ def dijkstra2(graph, start):
 
     return dist, prev
 
+def bellmanFord(graph, start):
+    start = graph[start]
+    Q = []
+    for node in graph.values():
+        Q.append(node)
+    MAX_EDGE = 9999
+    dist = {}
+    prev = {}
+
+    for node in graph.values():
+        dist[node.name] = MAX_EDGE
+        prev[node.name] = []
+    dist[start.name] = 0
+
+    u = None
+    ls = []
+
+    for node in graph.values():
+        #this won't work
+        print("NODE-----------------")
+        for edge in node.get_links().values():
+            #print(edge)
+            tempDist = dist[edge[node]]
+            print(tempDist)
+            # if(tempDist < dist[node.name]):
+            dist[edge[0].name] = tempDist
+            prev[edge[0].name].append(node.name)
+
+    return dist, prev
+
 
 def min_dist(Q, dist, MAX_EDGE):
     minv = MAX_EDGE
@@ -121,9 +151,20 @@ def min_dist(Q, dist, MAX_EDGE):
 # Run dikstra algorithim on source csv and user specified start node
 dist,prev = dijkstra2(create_graph("topology-1.csv"), "u")
 
+print("shortest path tree for node:" + "u")
+print 
 print("DIST: ",dist)
 print("PREV:")
 for key, list in prev.items():
     print(key)
     for node in list:
         print(node.name,end="\t")
+
+beldist, belprev = bellmanFord(create_graph("topology-1.csv"), "u")
+print("BELFORD DIST : ", beldist)
+
+
+# for node in dist.keys():
+#     dist, prev = bellmanFord(create_graph(sys.argv[1]), node)
+#     vector = dist.values()
+#     print("Distance vector for node {}: {}".format(node, vector))

@@ -1,5 +1,5 @@
-import csv
 import sys
+import heapq
 
 
 class Node(object):
@@ -73,7 +73,57 @@ def dijkstra(graph, start):
             for edge in value.get_links:
                 if (edge < shortestEdge):
                     shortestEdge = edge
-                
+
+
+def dijkstra2(graph, start):
+    start = graph[start]
+    Q = []
+    for node in graph.values():
+        Q.append(node)
+    MAX_EDGE = 9999
+    dist = {}
+    prev = {}
+
+    for node in graph.values():
+        dist[node.name] = MAX_EDGE
+        prev[node.name] = []
+    dist[start.name] = 0
+
+    u = None
+    ls = []
+    while(len(Q) > 0):
+        if(u is None):
+            u = Q[0]
+            Q.remove(u)
+        else:
+            u = min_dist(Q, dist, MAX_EDGE)
+
+        for edge in u.get_links().values():
+            alt = dist[u.name] + edge[1]
+            if (alt < dist[edge[0].name]):
+                dist[edge[0].name] = alt
+                prev[edge[0].name].append(u)
+
+    return dist, prev
+
+
+def min_dist(Q, dist, MAX_EDGE):
+    minv = MAX_EDGE
+    ret = Q[0]
+    for node in Q:
+        if(dist[node.name] < minv):
+            minv = dist[node.name]
+            ret = node
+    Q.remove(ret)
+    return(ret)
+
 # MAIN
 # Run dikstra algorithim on source csv and user specified start node
-dijkstra(create_graph(sys.argv[1]), sys.argv[2])
+dist,prev = dijkstra2(create_graph("topology-1.csv"), "u")
+
+print("DIST: ",dist)
+print("PREV:")
+for key, list in prev.items():
+    print(key)
+    for node in list:
+        print(node.name,end="\t")

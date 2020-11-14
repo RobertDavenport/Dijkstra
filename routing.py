@@ -1,10 +1,11 @@
-import sys
+import sys, heapq
 
 
+# Parses the csv file into a graph
 def create_graph(file):
     index = []  # This node at each index in the input adjacency matrix's header
-    nodes = []
-    dists = {}
+    nodes = []  # List of nodes
+    dists = {}  # Graph
     with open(file) as topology:
 
         # ================== Process header line
@@ -36,33 +37,74 @@ def create_graph(file):
                 return nodes, dists
 
 
-def dijkstra(nodes, dists, start):
-    MAX = 9999
-    dist = {}
-    prev = {}
-    pq = []
-
+def dijkstra(nodes, graph, start):
+    MAX = 9999  # Max value, representing no connection in graph.
+    dist = {}   # Stores distance from start to every node
+    prev = {}   # Dictionary, stores shortest path to every node from start
+    pq = []     # Stores unpathed nodes
     for n in nodes:
         dist[n] = MAX
         prev[n] = []
-        pq.append(n)
+        pq.append(n)    # Adds all nodes to the unpathed list
+    dist[start] = 0     # Distance from start -> start is 0
 
-    dist[start] = 0
-    while(len(pq) > 0):
-        u = min_dist(MAX, dist, pq)
-        pq.remove(u)
-        for node, weight in dists[u].items():
-            d = dist[u] + weight
-            if d <= dist[node]:
-                dist[node] = d
-                prev[node].append(u)
-                if(node == 'z' or u == 'z'):
-                    print(prev[node])
-
-
+    while(len(pq) > 0): # Iterate through every unpathed node
+        u = min_dist(MAX, dist, pq)     # Select the node with the lowest distance to start
+        pq.remove(u)                    # Remove the node from the unpathed nodes
+        for neighbor, weight in dists[u].items():
+            # --------- Updates link values for nodes without direct connections
+            for node2, weight2 in dists[neighbor].items():
+                if(graph[u][neighbor]+graph[neighbor][node2] < graph[u][node2]):
+                    graph[u][node2] = graph[u][neighbor]+graph[neighbor][node2]
+                    graph[node2][u] = graph[u][neighbor]+graph[neighbor][node2]
+            #-------------------------------------------------------------------
+            distance = dist[u] + weight     # Compute distance to start node
+            if distance <= dist[neighbor]:  # If this distance is less than the previous,
+                dist[neighbor] = distance   # this is the new distance; add it to the path.
+                prev[neighbor].append(u)
     return dist, prev
 
+def bellman_ford(nodes, graph, start):
+    MAX = 9999  # Max value, representing no connection in graph.
+    dist = {}   # Stores distance from start to every node
+    prev = {}   # Dictionary, stores shortest path to every node from start
+    pq = []     # Stores unpathed nodes
+    for n in nodes:
+        dist[n] = MAX
+        prev[n] = []
+        pq.append(n)    # Adds all nodes to the unpathed list
+    dist[start] = 0     # Distance from start -> start is 0
 
+
+    for node in nodes:
+        for neighbor, weight in graph[node].items():
+            distance = dist[neighbor] + weight
+            if(distance < dist[node]):
+                dist[node] = distance
+                prev[node].append(neighbor)
+    for node in nodes:
+        for neighbor, weight in graph[node].items():
+            if(dist[node] + graph[node][neighbor] < dist[neighbor]):
+                raise Exception("Negative Cycle")
+"""
+    while(len(pq) > 0): # Iterate through every unpathed node
+        u = min_dist(MAX, dist, pq)     # Select the node with the lowest distance to start
+        pq.remove(u)                    # Remove the node from the unpathed nodes
+        for neighbor, weight in dists[u].items():
+            # --------- Updates link values for nodes without direct connections
+            for node2, weight2 in dists[neighbor].items():
+                if(graph[u][neighbor]+graph[neighbor][node2] < graph[u][node2]):
+                    graph[u][node2] = graph[u][neighbor]+graph[neighbor][node2]
+                    graph[node2][u] = graph[u][neighbor]+graph[neighbor][node2]
+            #-------------------------------------------------------------------
+            distance = dist[u] + weight     # Compute distance to start node
+            if distance <= dist[neighbor]:  # If this distance is less than the previous,
+                dist[neighbor] = distance   # this is the new distance; add it to the path.
+                prev[neighbor].append(u)
+    return dist, prev"""
+
+# Finds the node in the graph with the lowest
+# distance value
 def min_dist(max, dist, q):
     mind = max
     minn = q[0]
@@ -73,44 +115,8 @@ def min_dist(max, dist, q):
     return minn
 
 
-def path(prev,u):
-    print(u, prev[u])
-    print()
-
 
 # MAIN
 # Run Dijkstra algorithm on source csv and user specified start node
-# dist, prev = dijkstra(create_graph("topology-1.csv"), "u")
 
 nodes, dists = create_graph("topology-1.csv")
-#print(nodes)
-#print(dists)
-dist, prev = dijkstra(nodes, dists, "u")
-
-#for node in dist.keys():
-#    dist, prev = dijkstra2(create_graph("topology-1.csv"), node)
-#    print("Distance vector for node {}: {}".format(node, dist.values()))
-
-
-print("DIST: ", dist)
-for node in nodes:
-    path(prev, node)
-"""
-print("PREV:")
-for u in nodes:
-    u2 = u
-    S = []
-    if (prev[u] is not None):
-        while u is not None:
-            S.append(u)
-            try:
-                u = prev[u].pop()
-            except:
-                break
-    print(u2, "::", S[::-1], end=" ")
-    tot = 0
-    for i in range(len(S) - 1):
-        links = graph[S[i]].get_links()
-        tot += links[S[i + 1]][1]
-    print(tot)"""
-

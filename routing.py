@@ -51,9 +51,9 @@ def dijkstra(nodes, graph, start):
     while(len(pq) > 0): # Iterate through every unpathed node
         u = min_dist(MAX, dist, pq)     # Select the node with the lowest distance to start
         pq.remove(u)                    # Remove the node from the unpathed nodes
-        for neighbor, weight in dists[u].items():
+        for neighbor, weight in graph[u].items():
             # --------- Updates link values for nodes without direct connections
-            for node2, weight2 in dists[neighbor].items():
+            for node2, weight2 in graph[neighbor].items():
                 if(graph[u][neighbor]+graph[neighbor][node2] < graph[u][node2]):
                     graph[u][node2] = graph[u][neighbor]+graph[neighbor][node2]
                     graph[node2][u] = graph[u][neighbor]+graph[neighbor][node2]
@@ -112,8 +112,30 @@ def min_dist(max, dist, q):
 # MAIN
 # Run Dijkstra algorithm on source csv and user specified start node
 
-nodes, graph = create_graph("topology-1.csv")
+file = "topology-1.csv"
+source_node = input("Please, provide the source node: ")
+print("Shortest path tree for node {}:".format(source_node))
 
+nodes, graph = create_graph(file)  # Create the graph from the input file.
+
+# Find the shortest path tree and cost of least-cost
+# paths using Dijkstra's algorithm.
+dists, paths = dijkstra(nodes, graph, source_node)
+for i, path in enumerate(paths.values()):   # Prints shortest paths.
+    for char in path:
+        print(char, end="")
+    if(i+1<len(paths)):
+        print(", ", end="")
+print()
+print("Costs of the least-cost paths for node u:")
+for i, item in enumerate(dists.items()):    # Prints cost of least cost paths.
+    if(i+1<len(dists)):
+        print(item[0]+":"+str(item[1]), end=", ")
+    else:
+        print(item[0] + ":" + str(item[1]), end="\n\n")
+
+# Print the distance vectors the the graph using the
+# BellmanFord equation
 for start in nodes:
     dist, prev = bellman_ford(nodes, graph, start)
     d_vector = ""
